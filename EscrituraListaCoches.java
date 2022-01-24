@@ -17,12 +17,11 @@ import java.util.Scanner;
 
 
 
-
-
-
 public class EscrituraListaCoches {
 
-	public static final String nombreFichero = "C:/proyecto/datos2.dat";
+	public static final String nombreFichero = "coches.dat";
+	
+	public static final String NOMBRE_FICHERO_TXT = "coches.txt";
 
 	public static void main(String[] args) throws ClassNotFoundException {
 
@@ -57,41 +56,44 @@ public class EscrituraListaCoches {
 				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 			//oos = new ObjectOutputStream(new FileOutputStream(new File(nombreFichero)));
 			oos.writeObject(listaCoches);
-			System.out.println("Objeto introducido");
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 
-		System.out.println("Cerrando programa");
-
-		//Hacemos un bucle do while para que de la opciÛn de elegir del men˙ hasta que pulse salir
-		//que hacer pasar· a true y saldremos del bucle
+		//Hacemos un bucle do while para que de la opci√≥n de elegir del men√∫ hasta que pulse salir
+		//que hacer pasar√° a true y saldremos del bucle
 		boolean hacer = false;
 
 		do {
 
 
-			System.out.println("Elija una opciÛn: " + "\n" +"1.AÒadir nuevo coche" + "\n"+"2.Borrar coche por id"+
-					"\n"+"3.Consultar coches por id"+"\n"+"4.Listado de coches"+"\n"+"5.Terminar el programa");	 
-
-
-
-
+			System.out.println("Elija una opci√≥n: " + "\n" +"1.A√±adir nuevo coche" + "\n"+"2.Borrar coche por id"+
+					"\n"+"3.Consultar coches por id"+"\n"+"4.Listado de coches" + "\n" + "5.Exportar coches a archivo de texto" + "\n"+"6.Terminar el programa");	 
 
 			int opcion = leer.nextInt();
 
-
 			switch (opcion) {
 
-
 			case 1:
-
+				// Se procede a pedir por consola los datos del coche que el usuario desea a√±adir a la lista
 				System.out.println("Introduzca id:");
 				int addId = leer.nextInt();
-				coche3.setId(addId);
+				
+				// Se comprobar√° primero que el ID que se quiere introducir no coincida con el de otro coche de la lista (requerimiento 3)
+				for(Coche c : listaCoches){
+					if(c.getId() == addId) {
+						System.out.println("Este ID ya est√° asignado a otro coche, pruebe con otro: ");
+						addId = leer.nextInt();
+						coche3.setId(addId);
+					}
+					else {
+						coche3.setId(addId);
+					}
+				}
 
-				System.out.println("Introduzca matrÌcula:");
+				System.out.println("Introduzca matr√≠cula:");
 				String addMatricula = leer.next();
 				coche3.setMatricula(addMatricula);
 
@@ -106,14 +108,12 @@ public class EscrituraListaCoches {
 				System.out.println("Introduzca color:");
 				String addColor=leer.next();
 				coche3.setColor(addColor);
-
-
 				listaCoches.add(coche3);
-
-
 				break;
+				
 			case 2:
-				System.out.println("Escriba el id:");
+				// Se busca el coche recorriendo cada elemento de la lista  y comparando su id con el buscado, y a continuaci√≥n se borra
+				System.out.println("Escriba el id del coche a borrar: ");
 				int id = leer.nextInt();
 				for (int i=0; i<listaCoches.size();i++) {
 					if(listaCoches.get(i).getId()==(id)) {
@@ -124,10 +124,11 @@ public class EscrituraListaCoches {
 						System.out.println("no lo ha encontrado");
 					}
 				}
-
 				break;
+				
 			case 3:
-				System.out.println("Escriba un id");
+				// Se busca el coche recorriendo cada elemento de la lista  y comparando su id con el buscado
+				System.out.println("Escriba el id del coche a consultar: ");
 				int buscadorId =leer.nextInt();
 				for (int i=0;i<listaCoches.size();i++) {
 					if(listaCoches.get(i).getId()==(buscadorId)) {
@@ -135,28 +136,46 @@ public class EscrituraListaCoches {
 					}
 				}
 				break;
+				
 			case 4:
+				// Se imprime por consola el listado de coches guardados hasta el momento
 				System.out.println(listaCoches.toString());
-
 				break;
+				
 			case 5:
-				//una vez pulse 5 exportaremos los objetos a nuestro fichero .dat y lo podremos ver en la clase LecturaListaCoches al ejecutarla
+				// Si el usuario pulsa 5 se exportar√°n los datos de la lista a un fichero de texto (requerimiento 2)	
+				try(FileWriter fw = new FileWriter(NOMBRE_FICHERO_TXT);
+						BufferedWriter pw = new BufferedWriter(fw);) {
+					//Si ponemos (nombreFichero,true) add en vez de borrar
+					pw.write("Estos son los datos de los coches:");
+					pw.newLine();
+					pw.write(listaCoches.toString());
+					pw.flush();
+					System.out.println("El fichero de texto ha sido creado");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+				break;
+				
+			case 6:
+				//una vez pulse 6 exportaremos los objetos a nuestro fichero .dat y lo podremos ver en la clase LecturaListaCoches al ejecutarla
 				try (FileOutputStream fos = new FileOutputStream(file);
 						ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 					//oos = new ObjectOutputStream(new FileOutputStream(new File(nombreFichero)));
 					oos.writeObject(listaCoches);
-					System.out.println("Objeto introducido");
+					System.out.println("Fichero de datos creado");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
 
 				hacer=true;
-				System.out.println("Terminaste");
+				System.out.println("Terminaste. Cerrando el programa...");
 				break;
+				
 			default:
-
-				System.out.println("Elija otra opciÛn");
+				System.out.println("Elija otra opci√≥n");
 			}
 
 		}while(!hacer);
